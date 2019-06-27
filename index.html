@@ -1,1 +1,76 @@
-Hello World
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
+    <title>Test</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="icon" href="images/favicon.png" />
+  </head>
+
+  <body>
+      <div id="root"></div>
+
+    <script type="text/babel">
+
+    
+class PhotoCapture extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+
+    }
+  }
+  componentDidMount() {
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia || navigator.mozGetUserMedia;
+    if (navigator.getUserMedia) {
+        navigator.getUserMedia({video: true}, this.handleVideo, this.videoError)
+    }
+  }
+  handleVideo (stream) {
+    var canvas = document.getElementById('canvas');
+    //var context = canvas.getContext('2d');
+    var video = document.getElementById('video');
+    video.srcObject = stream;
+    video.play();
+  }
+  videoError() {
+  }
+  render(){
+        // setTimeout(() => {
+        //     if (!this.props.isOpen) {
+        //         return;
+        //     }
+        //     const context = this.canvasElement.getContext('2d');
+        //     context.drawImage(this.props.video, 0, 0, 640, 480);
+        // });
+        // const canvasEl = (<canvas id="canvas" width="640" height="480" className="photoCard" ref={(input) => this.canvasElement = canvas} />)
+        return (
+          <div>
+          <h1>video</h1>
+            <div className="content">
+                <video id="video" width="640" height="480" autoplay></video>
+                <canvas id="canvas" width="640" height="480"></canvas>
+            </div>
+          </div>
+            );
+          
+    }
+}
+
+
+      ReactDOM.render(
+          <PhotoCapture />,
+          document.getElementById('root')
+      );
+
+
+      </script>
+  </body>
+</html>
