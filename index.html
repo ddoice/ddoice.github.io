@@ -38,7 +38,8 @@ class PhotoCapture extends React.Component {
     super(props);
     this.state = {
       status: '',
-      text: ''
+      text: '',
+      nogum: false
     }
   }
   componentDidMount() {
@@ -51,12 +52,15 @@ class PhotoCapture extends React.Component {
 
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia || navigator.mozGetUserMedia;
     if (navigator.getUserMedia) {
-        navigator.getUserMedia({  audio: false,
+        navigator.getUserMedia({ 
+           audio: false,
     video: {
         width: { ideal: 1280 },
         height: { ideal: 1024 },
         facingMode: "environment"
     }}, this.handleVideo, this.videoError)
+    } else {
+      this.setState({nogum: true})
     }
 
     worker = new Tesseract.TesseractWorker();
@@ -83,15 +87,22 @@ class PhotoCapture extends React.Component {
 
 
   }
-  handleVideo (stream) {
+  
+  handleVideo =(stream) =>{
+    console.log('handleVideo', stream);
     var canvas = document.getElementById('canvas');
     //var context = canvas.getContext('2d');
     var video = document.getElementById('video');
     video.srcObject = stream;
     video.play();
   }
-  videoError() {
+
+  videoError= (err) => {
+    console.log('videoError', err);
+    
+    this.setState({nogum : 'videoError'})
   }
+
   render(){
         // setTimeout(() => {
         //     if (!this.props.isOpen) {
@@ -101,16 +112,19 @@ class PhotoCapture extends React.Component {
         //     context.drawImage(this.props.video, 0, 0, 640, 480);
         // });
         // const canvasEl = (<canvas id="canvas" width="640" height="480" className="photoCard" ref={(input) => this.canvasElement = canvas} />)
-        const {text, status} = this.state;
+        const {text, status, nogum} = this.state;
         return (
           <div>
           <h1>video</h1>
           <p>{status}</p>
           <p>{text}</p>
-            <div className="content">
+            {nogum ? <h1>No getusermedia: {nogum}</h1>
+            :             <div className="content">
                 <video id="video" width="640" height="480" autoplay></video>
                 <canvas id="canvas" width="640" height="480"></canvas>
             </div>
+
+            }
           </div>
             );
           
