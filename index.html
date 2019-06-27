@@ -44,21 +44,18 @@ class PhotoCapture extends React.Component {
   }
   componentDidMount() {
 
-    setTimeout(()=>{
-      throw new error('asd')
-    }, 5000)
-
     console.log('componentDidMount')
 
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia || navigator.mozGetUserMedia;
     if (navigator.getUserMedia) {
         navigator.getUserMedia({ 
            audio: false,
-    video: {
-        width: { ideal: 1280 },
-        height: { ideal: 1024 },
-        facingMode: "environment"
-    }}, this.handleVideo, this.videoError)
+          video: {
+              width: { ideal: 768 },
+              height: { ideal: 768 },
+              facingMode: "environment"
+          }
+    }, this.handleVideo, this.videoError)
     } else {
       this.setState({nogum: true})
     }
@@ -67,7 +64,7 @@ class PhotoCapture extends React.Component {
 
     worker
         .recognize(
-          './images/ocr.png',
+          document.getElementById('canvas'),
           'eng',
           // {
           //   'tessedit_ocr_engine_mode': OEM.TESSERACT_ONLY,
@@ -87,14 +84,44 @@ class PhotoCapture extends React.Component {
 
 
   }
-  
+
   handleVideo =(stream) =>{
     console.log('handleVideo', stream);
-    var canvas = document.getElementById('canvas');
-    //var context = canvas.getContext('2d');
-    var video = document.getElementById('video');
+    let canvas = document.getElementById('canvas');
+    let context = canvas.getContext('2d');
+    let video = document.getElementById('video');
+    this.setState({canvas, context, video})
     video.srcObject = stream;
     video.play();
+  }
+
+  scanPhoto = () => {
+
+		//setInterval(() => {
+      //this.state.context.drawImage(video, 0, 0, 640, 480);
+      //this.state.context.drawImage(video, 0, 0, 640, 480);
+      this.state.context.drawImage(video,0,284,768,200,0,0,768,200);
+      //this.state.context.drawImage(video,ancho final,alto final,768,768,0,0,50,50);
+    //}, 3000);
+
+    worker
+        .recognize(
+          this.state.canvas,
+          'eng',
+          // {
+          //   'tessedit_ocr_engine_mode': OEM.TESSERACT_ONLY,
+          //   'tessedit_char_whitelist': '0123456789-.',
+          // }
+        )
+        .progress((p) => {
+          const { status } = p;
+          console.log('status', status)
+          this.setState({ status });
+        })
+        .then((all) => {
+          console.log('all.text', all.text)
+          this.setState({ status: 'ready', enabled: true, text: all.text });          
+        });
   }
 
   videoError= (err) => {
@@ -104,25 +131,26 @@ class PhotoCapture extends React.Component {
   }
 
   render(){
-        // setTimeout(() => {
-        //     if (!this.props.isOpen) {
-        //         return;
-        //     }
-        //     const context = this.canvasElement.getContext('2d');
-        //     context.drawImage(this.props.video, 0, 0, 640, 480);
-        // });
-        // const canvasEl = (<canvas id="canvas" width="640" height="480" className="photoCard" ref={(input) => this.canvasElement = canvas} />)
+
         const {text, status, nogum} = this.state;
         return (
           <div>
           <h1>video</h1>
           <p>{status}</p>
           <p>{text}</p>
-            {nogum ? <h1>No getusermedia: {nogum}</h1>
-            :             <div className="content">
-                <video id="video" width="640" height="480" autoplay></video>
-                <canvas id="canvas" width="640" height="480"></canvas>
+            {nogum 
+            ? <h1>No getusermedia: {nogum}</h1>
+            : 
+            <React.Fragment>
+            <div className="content">
+                <video id="video" width="768" height="768" autoplay></video>
             </div>
+            <div className="content">
+                <canvas id="canvas" width="768" height="768"></canvas>
+            </div>
+            <button onClick={this.scanPhoto}>Capture</button>
+
+            </React.Fragment>
 
             }
           </div>
