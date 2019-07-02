@@ -6,7 +6,10 @@ self.addEventListener('install', event => {
 // The activate handler takes care of cleaning up old caches.
 self.addEventListener('activate', event => {
   console.log('sw.js activate')
-  self.registration.showNotification('asd')
+  self.registration.showNotification('asd', {
+    tag: 'renotify',
+    renotify: true
+  })
 });
 
 fetch('/data.json').then(r=>r.json()).then(data=>{
