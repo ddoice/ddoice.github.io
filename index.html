@@ -6,165 +6,36 @@
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src='https://unpkg.com/tesseract.js@v2.0.0-alpha.10/dist/tesseract.min.js'></script>
-    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
     <title>Test</title>
     <link rel="stylesheet" href="css/main.css" />
     <link rel="icon" href="images/favicon.png" />
   </head>
 
   <body>
-      <div id="root"></div>
+      <div id="root">
+        SW test
+      </div>
       <hr/>
       <div id="err"></div>
 
       <script>
-      
-      window.addEventListener('error', function (err) {
-        console.log('err', err)
-        document.getElementById('err').innerHTML = JSON.stringify(err, ["message", "arguments", "type", "name"])
-      })
-            
-      </script>
 
-    <script type="text/babel">
+navigator.serviceWorker.register('sw.js');
 
-let worker;
-    
-class PhotoCapture extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      status: '',
-      text: '',
-      nogum: false
-    }
-  }
-  componentDidMount() {
-
-    console.log('componentDidMount')
-
-    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia || navigator.mozGetUserMedia;
-    if (navigator.getUserMedia) {
-        navigator.getUserMedia({ 
-           audio: false,
-          video: {
-              width: { ideal: 768 },
-              height: { ideal: 768 },
-              facingMode: "environment"
-          }
-    }, this.handleVideo, this.videoError)
-    } else {
-      this.setState({nogum: true})
-    }
-
-    worker = new Tesseract.TesseractWorker();
-
-    worker
-        .recognize(
-          document.getElementById('canvas'),
-          'eng',
-          // {
-          //   'tessedit_ocr_engine_mode': OEM.TESSERACT_ONLY,
-          //   'tessedit_char_whitelist': '0123456789-.',
-          // }
-        )
-        .progress((p) => {
-          const { status } = p;
-          console.log('status', status)
-          this.setState({ status });
-        })
-        .then((all) => {
-          console.log('all.text', all.text)
-          this.setState({ status: 'ready', enabled: true, text: all.text });          
+function showNotification() {
+  Notification.requestPermission(function(result) {
+    if (result === 'granted') {
+      navigator.serviceWorker.ready.then(function(registration) {
+        registration.showNotification('Vibration Sample', {
+          body: 'Buzz! Buzz!',
+          icon: '../images/touch/chrome-touch-icon-192x192.png',
+          vibrate: [200, 100, 200, 100, 200, 100, 200],
+          tag: 'vibration-sample'
         });
-
-
-
-  }
-
-  handleVideo =(stream) =>{
-    console.log('handleVideo', stream);
-    let canvas = document.getElementById('canvas');
-    let context = canvas.getContext('2d');
-    let video = document.getElementById('video');
-    this.setState({canvas, context, video})
-    video.srcObject = stream;
-    video.play();
-  }
-
-  scanPhoto = () => {
-
-		//setInterval(() => {
-      //this.state.context.drawImage(video, 0, 0, 640, 480);
-      //this.state.context.drawImage(video, 0, 0, 640, 480);
-      this.state.context.drawImage(video,0,284,768,200,0,0,768,200);
-      //this.state.context.drawImage(video,ancho final,alto final,768,768,0,0,50,50);
-    //}, 3000);
-
-    worker
-        .recognize(
-          this.state.canvas,
-          'eng',
-          // {
-          //   'tessedit_ocr_engine_mode': OEM.TESSERACT_ONLY,
-          //   'tessedit_char_whitelist': '0123456789-.',
-          // }
-        )
-        .progress((p) => {
-          const { status } = p;
-          console.log('status', status)
-          this.setState({ status });
-        })
-        .then((all) => {
-          console.log('all.text', all.text)
-          this.setState({ status: 'ready', enabled: true, text: all.text });          
-        });
-  }
-
-  videoError= (err) => {
-    console.log('videoError', err);
-    
-    this.setState({nogum : 'videoError'})
-  }
-
-  render(){
-
-        const {text, status, nogum} = this.state;
-        return (
-          <div>
-          <h1>video</h1>
-          <p>{status}</p>
-          <p>{text}</p>
-            {nogum 
-            ? <h1>No getusermedia: {nogum}</h1>
-            : 
-            <React.Fragment>
-            <div className="content">
-                <video id="video" width="768" height="768" autoplay></video>
-            </div>
-            <div className="content">
-                <canvas id="canvas" width="768" height="768"></canvas>
-            </div>
-            <button onClick={this.scanPhoto}>Capture</button>
-
-            </React.Fragment>
-
-            }
-          </div>
-            );
-          
+      });
     }
-}
-
-
-      ReactDOM.render(
-          <PhotoCapture />,
-          document.getElementById('root')
-      );
-
+  });
+}      
 
       </script>
       
