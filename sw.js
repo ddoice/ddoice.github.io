@@ -11,3 +11,6 @@ self.addEventListener('activate', event => {
 fetch('/data.json').then(r=>r.json()).then(data=>{
   console.log('sw.js data=', data);
 });
+
+
+self.registration.showNotification('asd')
