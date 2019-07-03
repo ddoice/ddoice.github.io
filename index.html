@@ -1,47 +1,75 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Test</title>
-    <link rel="stylesheet" href="css/main.css" />
-    <link rel="icon" href="images/favicon.png" />
-  </head>
 
-  <body>
-      <div id="root">
-        SW test
-      </div>
-      <hr/>
-      <div id="err"></div>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Test</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="icon" href="images/favicon.png" />
+</head>
 
-      <script>
+<body>
+  <div id="root">
+    SW test
+  </div>
+  <hr />
+  <div>
+    <button onclick="register()">Register SW</button>
+    <button onclick="unregister()">Un register SW</button>
+  </div>
+  <div id="err"></div>
+  <p>v1</p>
 
-navigator.serviceWorker.register('sw.js');
+  <script>
 
-// function showNotification() {
-//   Notification.requestPermission(function(result) {
-//     if (result === 'granted') {
-//       navigator.serviceWorker.ready.then(function(registration) {
-//         registration.showNotification('Vibration Sample', {
-//           body: 'Buzz! Buzz!',
-//           icon: '../images/touch/chrome-touch-icon-192x192.png',
-//           vibrate: [200, 100, 200, 100, 200, 100, 200],
-//           tag: 'vibration-sample'
-//         });
-//       });
-//     } else {
-//       alert("Notifications are: " + result);
-//     }
-//   });
-// }      
 
-// showNotification();
+    function register() {
+      alert('register sw')
+      navigator.serviceWorker.register('sw.js');
 
-      </script>
-      
-  </body>
+    }
+
+    // function showNotification() {
+    //   Notification.requestPermission(function(result) {
+    //     if (result === 'granted') {
+    //       navigator.serviceWorker.ready.then(function(registration) {
+    //         registration.showNotification('Vibration Sample', {
+    //           body: 'Buzz! Buzz!',
+    //           icon: '../images/touch/chrome-touch-icon-192x192.png',
+    //           vibrate: [200, 100, 200, 100, 200, 100, 200],
+    //           tag: 'vibration-sample'
+    //         });
+    //       });
+    //     } else {
+    //       alert("Notifications are: " + result);
+    //     }
+    //   });
+    // }      
+
+    // showNotification();
+
+    // showNotification();
+
+    function unregister() {
+      alert('unregister sw')
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          for (let registration of registrations) {
+            registration.unregister()
+          }
+        }).catch(function (err) {
+          console.log('Service Worker registration failed: ', err);
+        });
+      }
+    }
+
+    register()
+
+
+  </script>
+
+</body>
+
 </html>
