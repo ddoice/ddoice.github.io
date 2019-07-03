@@ -6,8 +6,12 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Test</title>
-  <link rel="stylesheet" href="css/main.css" />
-  <link rel="icon" href="images/favicon.png" />
+  <style>
+    p {
+      margin: 0;
+      font-size: 0.8em;
+    }
+  </style>
 </head>
 
 <body>
@@ -18,17 +22,29 @@
   <div>
     <button onclick="register()">Register SW</button>
     <button onclick="unregister()">Un register SW</button>
+    <button onclick="sendMessage()">CheckSW</button>
   </div>
   <div id="err"></div>
   <p>v2</p>
 
   <script>
 
+    let worker;
 
-    function register() {
+    async function  register() {
       alert('register sw')
-      navigator.serviceWorker.register('sw.js');
+      worker = await navigator.serviceWorker.register('sw.js');
+      navigator.serviceWorker.addEventListener('message', function(event) {
+        console.log('message from worker', event.data)
+        document.querySelector('#err').innerHTML += `<p>${new Date().toISOString().split('.')[0].replace(/T/g,' ')} - ${event.data}</p>`;
+      });
 
+      
+
+    }
+
+    function sendMessage() {
+      navigator.serviceWorker.controller.postMessage("Client 1 says ");
     }
 
     // function showNotification() {
