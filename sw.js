@@ -23,7 +23,9 @@ self.addEventListener('activate', event => {
     // const temp = await self.registration.backgroundFetch.get(`my-fetch ${counter}`);
 
     const ts = Math.floor(Date.now() / 1000);
-    const data = await fetch(`./data.json?${ts}`).then(res=>res.json())
+    const data = await fetch(`./data.json?${ts}`).then(res=>res.json());
+
+    console.log('sw', data.length)
 
     if(prev!== 0 && prev !== data.length) {
       self.registration.showNotification(`Changed! (${counter++}) - json.length: ${data.length} - ${ts}`, {
