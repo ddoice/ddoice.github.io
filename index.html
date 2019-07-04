@@ -23,10 +23,15 @@
     <button onclick="register()">Register SW</button>
     <button onclick="unregister()">Un register SW</button>
     <button onclick="showRegistrations()">Registrations</button>
-    <button onclick="sendMessage()">Check SW</button>
+    <button onclick="sendMessage()">Logs</button>
+    <button onclick="startPoller()">Start Poller</button>
+    <button onclick="stopPoller()">Stop Poller</button>
   </div>
+  <hr />
+  <div id="live"></div>
+  <hr />
   <div id="err"></div>
-  <p>v5</p>
+  <p>v6</p>
 
   <script>
 
@@ -51,18 +56,26 @@
       }
 
       navigator.serviceWorker.addEventListener('message', function (event) {
-        const logs = JSON.parse(event.data)
-        document.querySelector('#err').innerHTML = logs.map(l => `<p>${JSON.stringify(l)}</p>`).join('\n');
+        console.log('event.data', event.data)
+        const { content, target } = JSON.parse(event.data)
+        document.querySelector(target).innerHTML = content.map(l => `<p>${JSON.stringify(l)}</p>`).join('\n');
       });
 
     }
 
+    function stopPoller() {
+      navigator.serviceWorker.controller.postMessage("stop");
+    }
+
+    function startPoller() {
+      navigator.serviceWorker.controller.postMessage("start");
+    }
+
     function sendMessage() {
       if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage("Client 1 says ");
+        navigator.serviceWorker.controller.postMessage("log");
       } else {
         document.querySelector('#err').innerHTML = `<h2>No service worker controller!</h2>`;
-
       }
     }
 

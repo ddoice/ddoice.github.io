@@ -1,4 +1,5 @@
 
+let poller;
 let counter = 0;
 let prev = 0;
 let log = [];
@@ -9,20 +10,10 @@ function addLog(counter, length) {
   log.push({ date, counter, length });
 }
 
-// The install handler takes care of precaching the resources we always need.
-self.addEventListener('install', event => {
-  console.log('sw.js install')
-  event.waitUntil(self.skipWaiting()); // Activate worker immediately
-});
+function startPoller() {
 
-// The activate handler takes care of cleaning up old caches.
-self.addEventListener('activate', event => {
-
-  event.waitUntil(self.clients.claim()); // Become available to all pages
-
-  console.log('sw.js activate')
-
-  setInterval(async () => {
+  clearInterval(poller);
+  poller = setInterval(async () => {
 
     console.log('interval')
 
@@ -40,6 +31,9 @@ self.addEventListener('activate', event => {
     console.log('sw', data.length, counter)
 
     addLog(counter, data.length)
+
+    sendMessageAll(JSON.stringify({ content: [log[log.length - 1]], target: '#live' }));
+
 
     //sendMessageAll(data.length)
 
@@ -59,13 +53,33 @@ self.addEventListener('activate', event => {
 
   }, 5000)
 
+}
+
+function stopPoller() {
+  clearInterval(poller);
+}
+
+// The install handler takes care of precaching the resources we always need.
+self.addEventListener('install', event => {
+  console.log('sw.js install')
+  event.waitUntil(self.skipWaiting()); // Activate worker immediately
+});
+
+// The activate handler takes care of cleaning up old caches.
+self.addEventListener('activate', event => {
+  event.waitUntil(self.clients.claim()); // Become available to all pages
+  console.log('sw.js activate')
+  startPoller();
 });
 
 
 self.addEventListener('message', function (event) {
   //console.log("SW Received Message: " + event.data);
-  console.log('message received!')
-  sendMessageAll(JSON.stringify(log))
+  const { data: type } = event;
+  console.log('message received!', type, JSON.stringify(log))
+  type === 'log' && sendMessageAll(JSON.stringify({ content: log, target: '#err' }))
+  type === 'start' && startPoller();
+  type === 'stop' && stopPoller();
 });
 
 async function sendMessageAll(data) {
