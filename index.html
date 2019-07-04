@@ -5,18 +5,46 @@
   <meta charset="utf-8" />
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,700" rel="stylesheet">
   <title>Test</title>
   <style>
+
+    body {
+      font-family: 'Work Sans', sans-serif;
+    }
+
     p {
       margin: 0;
       font-size: 0.8em;
     }
+
+    #status {
+      float: right;
+    }
+
+    .status {
+      font-size: 12px;
+      background-color: #EEE;
+      border-radius: 5px;
+      padding: 4px 15px;
+      color: white;
+    }
+
+    .ready {
+      background-color: green;
+    }
+
+    .notready {
+      background-color: red;
+    }    
+
+
   </style>
 </head>
 
 <body>
   <div id="root">
-    SW test
+    SW test <span id="status"></span>
   </div>
   <hr />
   <div>
@@ -31,11 +59,12 @@
   <div id="live"></div>
   <hr />
   <div id="err"></div>
-  <p>v6</p>
+  <p>v8</p>
 
   <script>
 
     let worker;
+    let prevState;
 
     async function register() {
 
@@ -128,7 +157,20 @@
       document.querySelector('#err').innerHTML = sws.map(l => `<p>${JSON.stringify(l)}</p>`).join('\n');
     }
 
-    register()
+    register();
+
+    setInterval(() => {
+      let currentState = navigator.serviceWorker.controller !== undefined;
+      console.log(currentState, prevState);
+      if (currentState !== prevState) {
+        if (navigator.serviceWorker.controller) {
+          document.querySelector('#status').innerHTML = '<span class="status ready">READY</span>'
+        } else {
+          document.querySelector('#status').innerHTML = '<span class="status notready">NOT READY</span>'
+        }
+      }
+      prevState = currentState;
+    }, 1000)
 
 
   </script>
