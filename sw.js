@@ -64,6 +64,7 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('message', function (event) {
   //console.log("SW Received Message: " + event.data);
+  console.log('message received!')
   sendMessageAll(JSON.stringify(log))
 });
 

@@ -22,29 +22,43 @@
   <div>
     <button onclick="register()">Register SW</button>
     <button onclick="unregister()">Un register SW</button>
-    <button onclick="sendMessage()">CheckSW</button>
+    <button onclick="showRegistrations()">Registrations</button>
+    <button onclick="sendMessage()">Check SW</button>
   </div>
   <div id="err"></div>
-  <p>v4</p>
+  <p>v5</p>
 
   <script>
 
     let worker;
 
     async function register() {
-      alert('register sw')
-      worker = await navigator.serviceWorker.register('sw.js');
+
+      const registrations = await getRegistrations();
+
+      console.log('registrations', registrations)
+      if (registrations.length === 0) {
+
+        worker = await navigator.serviceWorker.register('sw.js').then((registration) => {
+          document.querySelector('#err').innerHTML = "<h2>Registered a new SW</h2>";
+          return registration;
+        }).catch(e => {
+          document.querySelector('#err').innerHTML = `<h2>Error registering SW: ${e.message}</h2>`;
+        });
+      } else {
+        document.querySelector('#err').innerHTML = "<h2>Service worker already registered</h2>";
+        console.log();
+      }
+
       navigator.serviceWorker.addEventListener('message', function (event) {
         const logs = JSON.parse(event.data)
         document.querySelector('#err').innerHTML = logs.map(l => `<p>${JSON.stringify(l)}</p>`).join('\n');
       });
 
-
-
     }
 
     function sendMessage() {
-      if(navigator.serviceWorker.controller) {
+      if (navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage("Client 1 says ");
       } else {
         document.querySelector('#err').innerHTML = `<h2>No service worker controller!</h2>`;
@@ -53,9 +67,9 @@
     }
 
     function showNotification() {
-      Notification.requestPermission(function(result) {
+      Notification.requestPermission(function (result) {
         if (result === 'granted') {
-          navigator.serviceWorker.ready.then(function(registration) {
+          navigator.serviceWorker.ready.then(function (registration) {
             registration.showNotification('Vibration Sample', {
               body: 'Sw registered!',
               icon: '../images/touch/chrome-touch-icon-192x192.png',
@@ -67,7 +81,7 @@
           alert("Notifications are: " + result);
         }
       });
-    }      
+    }
 
     showNotification();
 
@@ -84,6 +98,21 @@
           console.log('Service Worker registration failed: ', err);
         });
       }
+    }
+
+    async function getRegistrations() {
+      return new Promise((resolve, reject) => {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          console.log('getRegistrations=', registrations);
+          const sws = registrations.map(({ active }) => ({ state: active.state, url: active.scriptURL }))
+          resolve(sws);
+        })
+      })
+    }
+
+    async function showRegistrations() {
+      const sws = await getRegistrations();
+      document.querySelector('#err').innerHTML = sws.map(l => `<p>${JSON.stringify(l)}</p>`).join('\n');
     }
 
     register()
