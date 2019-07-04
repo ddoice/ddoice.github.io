@@ -1,6 +1,13 @@
 
 let counter = 0;
 let prev = 0;
+let log = [];
+
+
+function addLog(counter, length) {
+  const date = new Date().toISOString().split('.')[0].replace(/T/g, ' ');
+  log.push({ date, counter, length });
+}
 
 // The install handler takes care of precaching the resources we always need.
 self.addEventListener('install', event => {
@@ -30,18 +37,22 @@ self.addEventListener('activate', event => {
     const ts = Math.floor(Date.now() / 1000);
     const data = await fetch(`./data.json?${ts}`).then(res => res.json());
 
-    console.log('sw', data.length)
+    console.log('sw', data.length, counter)
 
-    sendMessageAll(data.length)
+    addLog(counter, data.length)
+
+    //sendMessageAll(data.length)
 
     if (prev !== 0 && prev !== data.length) {
-      self.registration.showNotification(`Changed! (${counter++}) - json.length: ${data.length} - ${ts}`, {
+      self.registration.showNotification(`Changed! (${counter}) - json.length: ${data.length} - ${ts}`, {
         tag: 'renotify',
         renotify: true
       });
     }
 
     prev = data.length;
+
+    counter += 1;
 
     //console.log('data', bg, temp)
     //console.log('self.backgroundFetch', self.registration.backgroundFetch)
@@ -52,10 +63,8 @@ self.addEventListener('activate', event => {
 
 
 self.addEventListener('message', function (event) {
-  console.log("SW Received Message: " + event.data);
-
-
-
+  //console.log("SW Received Message: " + event.data);
+  sendMessageAll(JSON.stringify(log))
 });
 
 async function sendMessageAll(data) {
@@ -63,4 +72,5 @@ async function sendMessageAll(data) {
     client.postMessage(data);
   }));
 }
+
 
