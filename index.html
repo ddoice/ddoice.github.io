@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,700" rel="stylesheet">
   <title>Test</title>
   <style>
-
     body {
       font-family: 'Work Sans', sans-serif;
     }
@@ -37,9 +36,7 @@
 
     .notready {
       background-color: red;
-    }    
-
-
+    }
   </style>
 </head>
 
@@ -113,12 +110,17 @@
       Notification.requestPermission(function (result) {
         if (result === 'granted') {
           navigator.serviceWorker.ready.then(function (registration) {
+
             registration.showNotification('Vibration Sample', {
               body: 'Sw registered!',
               icon: '/images/icons/icon-192x192.png',
               vibrate: [200, 100, 200, 100, 200, 100, 200],
               tag: 'vibration-sample'
             });
+
+
+
+
           });
         } else {
           alert("Notifications are: " + result);
@@ -162,7 +164,6 @@
 
     setInterval(() => {
       let currentState = navigator.serviceWorker.controller !== undefined;
-      console.log(currentState, prevState);
       if (currentState !== prevState) {
         if (navigator.serviceWorker.controller) {
           document.querySelector('#status').innerHTML = '<span class="status ready">READY</span>'
@@ -171,7 +172,15 @@
         }
       }
       prevState = currentState;
-    }, 1000)
+    }, 1000);
+
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      deferredPrompt = e;
+    });
 
 
   </script>

@@ -4,6 +4,15 @@ let counter = 0;
 let prev = 0;
 let log = [];
 
+const PRECACHE = 'precache-v1';
+const RUNTIME = 'runtime';
+
+// A list of local resources we always want to be cached.
+const PRECACHE_URLS = [
+  'index.html',
+  './', // Alias for index.html
+];
+
 
 function addLog(counter, length) {
   const date = new Date().toISOString().split('.')[0].replace(/T/g, ' ');
@@ -62,14 +71,38 @@ function stopPoller() {
 // The install handler takes care of precaching the resources we always need.
 self.addEventListener('install', event => {
   console.log('sw.js install')
-  event.waitUntil(self.skipWaiting()); // Activate worker immediately
+  //event.waitUntil(self.skipWaiting()); // Activate worker immediately
+
+  event.waitUntil(
+    caches.open(PRECACHE)
+      .then(cache => cache.addAll(PRECACHE_URLS))
+      .then(self.skipWaiting())
+  );
+
 });
 
 // The activate handler takes care of cleaning up old caches.
 self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim()); // Become available to all pages
+  //event.waitUntil(self.clients.claim()); // Become available to all pages
   console.log('sw.js activate')
-  startPoller();
+  //startPoller();
+
+
+  const currentCaches = [PRECACHE, RUNTIME];
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return cacheNames.filter(cacheName => !currentCaches.includes(cacheName));
+    }).then(cachesToDelete => {
+      return Promise.all(cachesToDelete.map(cacheToDelete => {
+        return caches.delete(cacheToDelete);
+      }));
+    }).then(() => self.clients.claim())
+  );
+
+  // event.waitUntil(new Promise((resolve, reject)=>{
+  //   startPoller();
+  // }));
+
 });
 
 
@@ -78,7 +111,12 @@ self.addEventListener('message', function (event) {
   const { data: type } = event;
   console.log('message received!', type, JSON.stringify(log))
   type === 'log' && sendMessageAll(JSON.stringify({ content: log, target: '#err' }))
-  type === 'start' && startPoller();
+  if(type === 'start') {
+    event.waitUntil(new Promise((resolve, reject)=>{
+      startPoller();
+    }));
+  }
+    
   type === 'stop' && stopPoller();
 });
 
@@ -87,5 +125,31 @@ async function sendMessageAll(data) {
     client.postMessage(data);
   }));
 }
+
+
+
+
+
+self.addEventListener('fetch', event => {
+  // Skip cross-origin requests, like those for Google Analytics.
+  if (event.request.url.startsWith(self.location.origin) && !event.request.url.includes('.json')) {
+    event.respondWith(
+      caches.match(event.request).then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        return caches.open(RUNTIME).then(cache => {
+          return fetch(event.request).then(response => {
+            // Put a copy of the response in the runtime cache.
+            return cache.put(event.request, response.clone()).then(() => {
+              return response;
+            });
+          });
+        });
+      })
+    );
+  }
+});
 
 
