@@ -25,11 +25,14 @@ videoEl.srcObject = stream;
 await videoEl.play();
 
 const barcodeDetector = new BarcodeDetector({formats: ['pdf417']});
-window.setInterval(async () => {
+const vamos = () => {
   const barcodes = await barcodeDetector.detect(videoEl);
-  if (barcodes.length <= 0) return;
+  if (barcodes.length > 0) {
   alert(barcodes.map(barcode => barcode.rawValue));
-}, 1000)
-})();
+  }
+  vamos();
+};
+
+vamos();
   
 </script>
