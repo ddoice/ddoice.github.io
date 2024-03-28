@@ -13,9 +13,11 @@ const barcodeDetector = new BarcodeDetector({
 
 const imageEl = document.getElementById("code");
 
+console.time('code');
 barcodeDetector
   .detect(imageEl)
   .then((barcodes) => {
+    console.timeEnd('code');
     barcodes.forEach((barcode) => console.log(barcode.rawValue));
   })
   .catch((err) => {
