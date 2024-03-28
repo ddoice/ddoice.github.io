@@ -1,1 +1,25 @@
 <h1>yup!</h1>
+<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
+
+
+
+<script>
+
+const barcodeDetector = new BarcodeDetector({
+    formats: ["pdf417"],
+  });
+
+const imageEl = document.getElementById("code");
+
+barcodeDetector
+  .detect(imageEl)
+  .then((barcodes) => {
+    barcodes.forEach((barcode) => console.log(barcode.rawValue));
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+  
+  
+</script>
