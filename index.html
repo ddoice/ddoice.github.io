@@ -1,6 +1,8 @@
-<h1>yup!</h1>
-<img id="code" src="Screenshot_20240328-134717.png">
+<h1>yup bulk</h1>
+<img id="code1" src="Screenshot_20240328-134717.png">
 <img id="code2" src="Screenshot_20240328-134655.png">
+<img id="code3" src="Screenshot_20240328-134717.png">
+<img id="code4" src="Screenshot_20240328-134733.png">
 <script src="//cdn.jsdelivr.net/npm/eruda"></script>
 <script>eruda.init();</script>
 
@@ -12,18 +14,28 @@ const barcodeDetector = new BarcodeDetector({
     formats: ["pdf417"],
   });
 
-const imageEl = document.getElementById("code");
+const codes = ["code1","code2","code3","code4"];
 
-console.time('code');
+codes.forEach(code => {
+const imageEl = document.getElementById(code);
+    
+console.time(code);
 barcodeDetector
   .detect(imageEl)
   .then((barcodes) => {
-    console.timeEnd('code');
+    console.timeEnd(code);
     barcodes.forEach((barcode) => console.log(barcode.rawValue));
   })
   .catch((err) => {
     console.log(err);
   });
+    
+
+});
+
+
+
+
   
   
 </script>
