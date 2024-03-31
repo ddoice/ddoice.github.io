@@ -1,4 +1,4 @@
-<h1>pdf 417-2</h1>
+<h1>pdf 417-3</h1>
 
 <video id="stream" style="width: 100vw; height: 100vh;" />
 
@@ -21,11 +21,14 @@ const stream = await navigator.mediaDevices.getUserMedia({
   },
   audio: false
 });
+
+
+  
 const videoEl = document.querySelector("#stream");
 videoEl.srcObject = stream;
 await videoEl.play();
 
-const barcodeDetector = new BarcodeDetector({formats: ['pdf417']});
+const barcodeDetector = new BarcodeDetector({formats: ['pdf417','data_matrix']});
 const vamos = async () => {
   const barcodes = await barcodeDetector.detect(videoEl);
   if (barcodes.length > 0) {
