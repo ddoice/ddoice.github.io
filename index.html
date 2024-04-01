@@ -71,6 +71,13 @@ function updateStats(initial) {
   average = scanCount > 1 ? ((average * (scanCount-1)) + last) /scanCount : last;
 }
 
+const setInRange = (value, range) => {
+  if (!range) return NaN;
+  let x = Math.min(range.max, Math.max(range.min, value));
+  x = Math.round(x / range.step) * range.step;
+  return x;
+};
+
 const main = async () => { 
   
 const stream = await navigator.mediaDevices.getUserMedia({
@@ -102,15 +109,21 @@ await videoEl.play();
 
 
 const imageCapture = new ImageCapture(track);
+const { imageWidth, imageHeight } = await imageCapture.getPhotoCapabilities();
+const captureWidth = setInRange(2048, imageWidth);
+const captureHeight = setInRange(2048, imageHeight);
+const photoSettings = width && height
+      ? {
+        imageWidth: width,
+        imageHeight: height,
+      }
+      : null;
 
 const barcodeDetector = new BarcodeDetector({formats: ['pdf417','qr_code', 'aztec']});
 const vamos = async () => {
   const initial = Date.now();
 
-  const imageBlob = await imageCapture.takePhoto({
-    imageWidth: 1080
-  });
-
+  const imageBlob = await imageCapture.takePhoto(photoSettings);
 
   const imagen = new Image();  
   imagen.src = URL.createObjectURL(imageBlob);  
