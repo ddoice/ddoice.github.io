@@ -15,7 +15,7 @@
   }
 </style>
 
-<h1 class="title">Boarding pass scan (beta)</h1>
+<h1 class="title">Boarding pass scan (beta) v.1</h1>
 <video id="stream" style="width: 100vw; height: 100vh;" />
 
 <script src="//cdn.jsdelivr.net/npm/eruda"></script>
@@ -44,7 +44,7 @@ const vamos = async () => {
   if (barcodes.length > 0) {
   alert(barcodes.map(barcode => barcode.rawValue));
   }
-  vamos();
+  window.requestAnimationFrame(vamos);
 };
 vamos();
 };
