@@ -81,7 +81,14 @@ const stream = await navigator.mediaDevices.getUserMedia({
   },
   audio: false
 });
+
   
+let settings = stream.getVideoTracks()[0].getSettings(); 
+let width = settings.width; 
+let height = settings.height; 
+
+document.querySelector('.title').innerHTML = `stream:${width}*${height}<br>${navigator.userAgent}`;
+ 
 const videoEl = document.querySelector("#stream");
 videoEl.srcObject = stream;
 await videoEl.play();
