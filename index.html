@@ -55,7 +55,7 @@ function updateDom() {
   const timeNode = document.querySelector('.time span');
   const countNode = document.querySelector('.count span');
   timeNode.innerHTML = average;
-  countNode.innerHTML = scanCount;
+  countNode.innerHTML = scanCount.toFixed(2);
 }
   
 function updateStats(initial) {
