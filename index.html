@@ -86,8 +86,9 @@ const stream = await navigator.mediaDevices.getUserMedia({
   audio: false
 });
 
-  
-let settings = stream.getVideoTracks()[0].getSettings(); 
+
+let track = stream.getVideoTracks()[0]; 
+let settings = track.getSettings(); 
 let width = settings.width; 
 let height = settings.height; 
 
@@ -97,10 +98,16 @@ const videoEl = document.querySelector("#stream");
 videoEl.srcObject = stream;
 await videoEl.play();
 
+
+const imageCapture = new ImageCapture(track);
+
 const barcodeDetector = new BarcodeDetector({formats: ['pdf417','qr_code', 'aztec']});
 const vamos = async () => {
   const initial = Date.now();
-  const barcodes = await barcodeDetector.detect(videoEl);
+
+  const imageBlob = imageCapture.takePhoto()
+  const barcodes = await barcodeDetector.detect(imageBlob);
+  //const barcodes = await barcodeDetector.detect(videoEl);
   updateStats(initial);
   updateDom();
   if (barcodes.length > 0) {
