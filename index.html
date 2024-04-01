@@ -108,8 +108,16 @@ const vamos = async () => {
   const initial = Date.now();
 
   const imageBlob = await imageCapture.takePhoto();
-  console.log('imageBlob', imageBlob);
-  const barcodes = await barcodeDetector.detect(imageBlob);
+
+
+  const imagen = new Image();  
+  imagen.src = URL.createObjectURL(imageBlob);  
+  await new Promise(resolve => {
+    imagen.onload = resolve;
+  });
+
+  const barcodes = await barcodeDetector.detect(imagen);
+  imagen = null;
   //const barcodes = await barcodeDetector.detect(videoEl);
   updateStats(initial);
   updateDom();
