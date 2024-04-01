@@ -92,6 +92,8 @@ let settings = track.getSettings();
 let width = settings.width; 
 let height = settings.height; 
 
+window.__stream = stream;
+
 document.querySelector('.title').innerHTML = `stream:${width}*${height}<br>${navigator.userAgent}`;
  
 const videoEl = document.querySelector("#stream");
@@ -105,7 +107,8 @@ const barcodeDetector = new BarcodeDetector({formats: ['pdf417','qr_code', 'azte
 const vamos = async () => {
   const initial = Date.now();
 
-  const imageBlob = await imageCapture.takePhoto()
+  const imageBlob = await imageCapture.takePhoto();
+  console.log('imageBlob', imageBlob);
   const barcodes = await barcodeDetector.detect(imageBlob);
   //const barcodes = await barcodeDetector.detect(videoEl);
   updateStats(initial);
