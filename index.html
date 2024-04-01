@@ -37,7 +37,7 @@
   }   
 </style>
 
-<h1 class="title">Boarding pass scan (beta) v.1.5</h1>
+<h1 class="title">version</h1>
 <h1 class="count">Scan count <span>-</span></h1>
 <h1 class="time">Avg scan time <span>-</span>ms</h1>
 <video id="stream" style="width: 100vw; height: 100vh;" />
@@ -46,6 +46,8 @@
 <script>eruda.init();</script>
 
 <script>
+
+document.querySelector('.title').innerHTML = navigator.userAgent;
 
 if(typeof BarcodeDetector === 'undefined') {
   alert('API not supported by this browser');  
