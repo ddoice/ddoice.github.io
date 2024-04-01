@@ -95,7 +95,7 @@ const videoEl = document.querySelector("#stream");
 videoEl.srcObject = stream;
 await videoEl.play();
 
-const barcodeDetector = new BarcodeDetector({formats: ['pdf417','qr_code']});
+const barcodeDetector = new BarcodeDetector({formats: ['pdf417','qr_code', 'aztec']});
 const vamos = async () => {
   const initial = Date.now();
   const barcodes = await barcodeDetector.detect(videoEl);
