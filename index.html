@@ -62,7 +62,7 @@ function updateDom() {
 function updateStats(initial) {
 	scanCount += 1;
 	last = Date.now() - initial;
-	average = scanCount > 1 : (average/scanCount) + (last/scanCount) : last;
+	average = scanCount > 1 ? (average/scanCount) + (last/scanCount) : last;
 }
 
 const main = async () => { 
