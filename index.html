@@ -1,12 +1,13 @@
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 </head>
 <style>
-  body { 
+  body {
     background: #111;
     margin: 0;
     padding: 0;
   }
+
   .title {
     width: 100%;
     text-align: center;
@@ -17,6 +18,7 @@
     font-family: sans-serif;
     font-size: 15px;
   }
+
   .count {
     padding: 8px;
     position: fixed;
@@ -26,6 +28,7 @@
     font-family: monospace;
     font-size: 15px;
   }
+
   .time {
     padding: 8px;
     position: fixed;
@@ -34,7 +37,7 @@
     right: 0;
     font-family: monospace;
     font-size: 15px;
-  }   
+  }
 </style>
 
 <h1 class="title">version</h1>
@@ -47,105 +50,107 @@
 
 <script>
 
-document.querySelector('.title').innerHTML = navigator.userAgent;
+  document.querySelector('.title').innerHTML = navigator.userAgent;
 
-if(typeof BarcodeDetector === 'undefined') {
-  alert('API not supported by this browser');  
-}
+  if (typeof BarcodeDetector === 'undefined') {
+    alert('API not supported by this browser');
+  }
 
-let scanCount = 0;
-let average = 0;
-let last = 0;
-const minDelay=160;
+  let scanCount = 0;
+  let average = 0;
+  let last = 0;
+  const minDelay = 160;
 
-function updateDom() {
-  const timeNode = document.querySelector('.time span');
-  const countNode = document.querySelector('.count span');
-  timeNode.innerHTML = average.toFixed(2);
-  countNode.innerHTML = scanCount;
-}
-  
-function updateStats(initial) {
-  last = Date.now() - initial;
-  scanCount += 1;
-  average = scanCount > 1 ? ((average * (scanCount-1)) + last) /scanCount : last;
-}
+  function updateDom() {
+    const timeNode = document.querySelector('.time span');
+    const countNode = document.querySelector('.count span');
+    timeNode.innerHTML = average.toFixed(2);
+    countNode.innerHTML = scanCount;
+  }
 
-const setInRange = (value, range) => {
-  if (!range) return NaN;
-  let x = Math.min(range.max, Math.max(range.min, value));
-  x = Math.round(x / range.step) * range.step;
-  return x;
-};
+  function updateStats(initial) {
+    last = Date.now() - initial;
+    scanCount += 1;
+    average = scanCount > 1 ? ((average * (scanCount - 1)) + last) / scanCount : last;
+  }
 
-const main = async () => { 
-  
-const stream = await navigator.mediaDevices.getUserMedia({
-  video: {
-    facingMode: {
-      ideal: "environment"
-    },
-    //focusMode: 'manual',
-    //focusDistance: 0.5,
-    //width: { ideal: 960 },
-    //height: { ideal: 1280 } 
-  },
-  audio: false
-});
+  const setInRange = (value, range) => {
+    if (!range) return NaN;
+    let x = Math.min(range.max, Math.max(range.min, value));
+    x = Math.round(x / range.step) * range.step;
+    return x;
+  };
 
+  const main = async () => {
 
-let track = stream.getVideoTracks()[0]; 
-let settings = track.getSettings(); 
-let width = settings.width; 
-let height = settings.height; 
-
-window.__stream = stream;
-
-document.querySelector('.title').innerHTML = `stream:${width}*${height}<br>${navigator.userAgent}`;
- 
-const videoEl = document.querySelector("#stream");
-videoEl.srcObject = stream;
-await videoEl.play();
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: {
+          ideal: "environment"
+        },
+        //focusMode: 'manual',
+        //focusDistance: 0.5,
+        //width: { ideal: 960 },
+        //height: { ideal: 1280 } 
+      },
+      audio: false
+    });
 
 
-const imageCapture = new ImageCapture(track);
-const { imageWidth, imageHeight } = await imageCapture.getPhotoCapabilities();
-const captureWidth = setInRange(2048, imageWidth);
-const captureHeight = setInRange(2048, imageHeight);
-const photoSettings = width && height
+    let track = stream.getVideoTracks()[0];
+    let settings = track.getSettings();
+    let width = settings.width;
+    let height = settings.height;
+
+    window.__stream = stream;
+
+    document.querySelector('.title').innerHTML = `stream:${width}*${height}<br>${navigator.userAgent}`;
+
+    const videoEl = document.querySelector("#stream");
+    videoEl.srcObject = stream;
+    await videoEl.play();
+
+
+    const imageCapture = new ImageCapture(track);
+    const { imageWidth, imageHeight } = await imageCapture.getPhotoCapabilities();
+    const captureWidth = setInRange(2048, imageWidth);
+    const captureHeight = setInRange(2048, imageHeight);
+    const photoSettings = width && height
       ? {
         imageWidth: width,
         imageHeight: height,
       }
       : null;
 
-const barcodeDetector = new BarcodeDetector({formats: ['pdf417','qr_code', 'aztec']});
-const vamos = async () => {
-  const initial = Date.now();
+    console.log('photoSettings', photoSettings);
 
-  const imageBlob = await imageCapture.takePhoto(photoSettings);
+    const barcodeDetector = new BarcodeDetector({ formats: ['pdf417', 'qr_code', 'aztec'] });
+    const vamos = async () => {
+      const initial = Date.now();
 
-  const imagen = new Image();  
-  imagen.src = URL.createObjectURL(imageBlob);  
-  await new Promise(resolve => {
-    imagen.onload = resolve;
-  });
+      const imageBlob = await imageCapture.takePhoto(photoSettings);
 
-  const barcodes = await barcodeDetector.detect(imagen);
-  //const barcodes = await barcodeDetector.detect(videoEl);
-  console.log('barcodes.length', barcodes.length);
-  updateStats(initial);
-  updateDom();
-  if (barcodes.length > 0) {
-    alert(barcodes.map(barcode => barcode.rawValue));
-  }
-  const delay = Math.max(...[minDelay, average*1.5])
-  setTimeout(vamos, delay);
-  //window.requestAnimationFrame(vamos);
-};
-vamos();
-};
+      const imagen = new Image();
+      imagen.src = URL.createObjectURL(imageBlob);
+      await new Promise(resolve => {
+        imagen.onload = resolve;
+      });
 
-main();
-  
+      const barcodes = await barcodeDetector.detect(imagen);
+      //const barcodes = await barcodeDetector.detect(videoEl);
+      console.log('barcodes.length', barcodes.length);
+      updateStats(initial);
+      updateDom();
+      if (barcodes.length > 0) {
+        alert(barcodes.map(barcode => barcode.rawValue));
+      }
+      const delay = Math.max(...[minDelay, average * 1.5]);
+      setTimeout(vamos, delay);
+      //window.requestAnimationFrame(vamos);
+    };
+    vamos();
+  };
+
+  main();
+
 </script>
