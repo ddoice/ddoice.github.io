@@ -47,6 +47,11 @@
 
 <script>
 
+if(typeof BarcodeDetector === 'undefined') {
+  alert('API not supported by this browser');
+  return;
+}
+
 let scanCount = 0;
 let average = 0;
 let last = 0;
