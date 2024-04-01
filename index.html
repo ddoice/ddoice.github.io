@@ -142,8 +142,8 @@
 
     const imageCapture = new ImageCapture(track);
     const { imageWidth, imageHeight } = await imageCapture.getPhotoCapabilities();
-    const captureWidth = setInRange(2048, imageWidth);
-    const captureHeight = setInRange(2048, imageHeight);
+    const captureWidth = setInRange(960, imageWidth);
+    const captureHeight = setInRange(1280, imageHeight);
     const photoSettings = width && height
       ? {
         imageWidth: captureWidth,
