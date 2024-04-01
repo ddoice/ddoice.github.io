@@ -43,7 +43,7 @@
     padding: 8px;
     position: fixed;
     color: green;
-    top: 16px;
+    top: 24px;
     left: 0;
     font-family: monospace;
     font-size: 15px;
@@ -53,7 +53,7 @@
     padding: 8px;
     position: fixed;
     color: red;
-    top: 16px;
+    top: 24px;
     right: 0;
     font-family: monospace;
     font-size: 15px;
@@ -82,6 +82,8 @@
   let scanCount = 0;
   let average = 0;
   let last = 0;
+  let fail=0;
+  let success=0;      
   const minDelay = 200;
 
   function updateDom() {
@@ -128,8 +130,6 @@
     let settings = track.getSettings();
     let width = settings.width;
     let height = settings.height;
-    let fail=0;
-    let success=0;    
 
     window.__stream = stream;
 
