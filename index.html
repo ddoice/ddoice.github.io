@@ -78,10 +78,10 @@ const stream = await navigator.mediaDevices.getUserMedia({
     facingMode: {
       ideal: "environment"
     },
-    focusMode: 'manual',
-    focusDistance: 0.5,
-    width: { ideal: 960 },
-    height: { ideal: 1280 } 
+    //focusMode: 'manual',
+    //focusDistance: 0.5,
+    //width: { ideal: 960 },
+    //height: { ideal: 1280 } 
   },
   audio: false
 });
@@ -107,7 +107,9 @@ const barcodeDetector = new BarcodeDetector({formats: ['pdf417','qr_code', 'azte
 const vamos = async () => {
   const initial = Date.now();
 
-  const imageBlob = await imageCapture.takePhoto();
+  const imageBlob = await imageCapture.takePhoto({
+    imageWidth: 1080
+  });
 
 
   const imagen = new Image();  
@@ -118,10 +120,11 @@ const vamos = async () => {
 
   const barcodes = await barcodeDetector.detect(imagen);
   //const barcodes = await barcodeDetector.detect(videoEl);
+  console.log('barcodes.length', barcodes.length);
   updateStats(initial);
   updateDom();
   if (barcodes.length > 0) {
-  alert(barcodes.map(barcode => barcode.rawValue));
+    alert(barcodes.map(barcode => barcode.rawValue));
   }
   const delay = Math.max(...[minDelay, average*1.5])
   setTimeout(vamos, delay);
