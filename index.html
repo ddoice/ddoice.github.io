@@ -78,6 +78,8 @@ const stream = await navigator.mediaDevices.getUserMedia({
     facingMode: {
       ideal: "environment"
     },
+    focusMode: 'manual',
+    focusDistance: 0.5,
     width: { ideal: 960 },
     height: { ideal: 1280 } 
   },
