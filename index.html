@@ -117,12 +117,13 @@
     const captureHeight = setInRange(2048, imageHeight);
     const photoSettings = width && height
       ? {
-        imageWidth: width,
-        imageHeight: height,
+        imageWidth: captureWidth,
+        imageHeight: captureHeight,
       }
       : null;
 
     console.log('photoSettings', photoSettings);
+    
 
     const barcodeDetector = new BarcodeDetector({ formats: ['pdf417', 'qr_code', 'aztec'] });
     const vamos = async () => {
