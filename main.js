@@ -34,7 +34,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     videoEl.srcObject = stream;
     await videoEl.play();
 
-    const imageCapture = new ImageCapture(stream.getVideoTracks()[0]);
+    let track = stream.getVideoTracks()[0];
+    let settings = track.getSettings();
+    let width = settings.width;
+    let height = settings.height;
+
+    const imageCapture = new ImageCapture(track);
     const barcodeDetector = new BarcodeDetector({ formats: ['pdf417', 'qr_code', 'aztec'] });
 
     const { imageWidth, imageHeight } = await imageCapture.getPhotoCapabilities();
