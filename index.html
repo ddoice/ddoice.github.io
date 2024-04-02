@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 </head>
@@ -60,117 +62,14 @@
   }
 
 </style>
-
-<h1 class="title">version</h1>
-<h1 class="count">Scan count <span>-</span></h1>
-<h1 class="time">Avg scan time <span>-</span>ms</h1>
-<h1 class="success">Success <span>-</span></h1>
-<h1 class="fail">Fail <span>-</span></h1>
-<video id="stream" style="width: 100vw; height: 100vh;" />
-
-<script src="//cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
-
-<script>
-
-  document.querySelector('.title').innerHTML = navigator.userAgent;
-
-  if (typeof BarcodeDetector === 'undefined') {
-    alert('API not supported by this browser');
-  }
-
-  const DEFAULT_VOLUME = 0.1;
-  let audio;
-
-  const playSound = ({ file, volume }) => {
-    audio?.pause();
-    audio = new Audio(`/sounds/${file}.ogg`);
-    audio.volume = volume || DEFAULT_VOLUME;
-    audio.play();
-  };
-
-  let scanCount = 0;
-  let average = 0;
-  let last = 0;
-  let fail=0;
-  let success=0;      
-  const minDelay = 200;
-
-  function updateDom() {
-    const timeNode = document.querySelector('.time span');
-    const countNode = document.querySelector('.count span');
-    const successNode = document.querySelector('.success span');
-    const failNode = document.querySelector('.fail span');
-    successNode.innerHTML = success;
-    failNode.innerHTML = fail;
-    timeNode.innerHTML = average.toFixed(2);
-    countNode.innerHTML = scanCount;
-  }
-
-  function updateStats(initial) {
-    last = Date.now() - initial;
-    scanCount += 1;
-    average = scanCount > 1 ? ((average * (scanCount - 1)) + last) / scanCount : last;
-  }
-
-  const main = async () => {
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: {
-          ideal: "environment"
-        },
-        width: { ideal: 960 },
-        height: { ideal: 1280 } 
-      },
-      audio: false
-    });
-
-
-    let track = stream.getVideoTracks()[0];
-    let settings = track.getSettings();
-    let width = settings.width;
-    let height = settings.height;
-
-    window.__stream = stream;
-
-    document.querySelector('.title').innerHTML = `stream:${width}*${height}<br>${navigator.userAgent}`;
-
-    const videoEl = document.querySelector("#stream");
-    videoEl.srcObject = stream;
-    await videoEl.play();
-
-    const imageCapture = new ImageCapture(track);
-    const barcodeDetector = new BarcodeDetector({ formats: ['pdf417', 'qr_code', 'aztec'] });
-
-    const launchIt = (delay) => setTimeout(async ()=>{
-        try {
-          await vamos();
-        } catch (e) {
-          console.error(e);
-        } finally {
-          setTimeout(vamos, delay || minDelay);
-        }
-      }, minDelay);
-
-    async function vamos () {
-      const initial = Date.now();
-      const imageBlob = await imageCapture.grabFrame();
-      const barcodes = await barcodeDetector.detect(imageBlob);
-      updateStats(initial);
-      updateDom();
-      if (barcodes.length > 0) {
-        success+=1;
-        playSound({ file: 'Ceres', volume: 1 })
-        //alert(barcodes.map(barcode => barcode.rawValue));
-      } else {
-        fail+=1;
-      }
-      launchIt();
-    };
-    launchIt(0);
-  };
-
-  main();
-
-</script>
+<body>
+  <h1 class="title">version</h1>
+  <h1 class="count">Scan count <span>-</span></h1>
+  <h1 class="time">Avg scan time <span>-</span>ms</h1>
+  <h1 class="success">Success <span>-</span></h1>
+  <h1 class="fail">Fail <span>-</span></h1>
+  <video id="stream" style="width: 100vw; height: 100vh;" />
+  <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
+</body>
+</html>
