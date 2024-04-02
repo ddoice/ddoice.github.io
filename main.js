@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     let last = 0;
     let fail = 0;
     let success = 0;
-    const minDelay = 200;
+    const minDelay = 100;
 
     function updateDom() {
       const timeNode = document.querySelector('.time span');
