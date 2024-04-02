@@ -79,6 +79,16 @@
     alert('API not supported by this browser');
   }
 
+  const DEFAULT_VOLUME = 0.1;
+  let audio;
+
+  export const playSound = ({ file, volume }) => {
+    audio?.pause();
+    audio = new Audio(`/sounds/${file}.ogg`);
+    audio.volume = volume || DEFAULT_VOLUME;
+    audio.play();
+  };
+
   let scanCount = 0;
   let average = 0;
   let last = 0;
@@ -103,13 +113,6 @@
     average = scanCount > 1 ? ((average * (scanCount - 1)) + last) / scanCount : last;
   }
 
-  const setInRange = (value, range) => {
-    if (!range) return NaN;
-    let x = Math.min(range.max, Math.max(range.min, value));
-    x = Math.round(x / range.step) * range.step;
-    return x;
-  };
-
   const main = async () => {
 
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -117,8 +120,6 @@
         facingMode: {
           ideal: "environment"
         },
-        //focusMode: 'manual',
-        //focusDistance: 0.5,
         width: { ideal: 960 },
         height: { ideal: 1280 } 
       },
@@ -139,48 +140,37 @@
     videoEl.srcObject = stream;
     await videoEl.play();
 
-
     const imageCapture = new ImageCapture(track);
-    const { imageWidth, imageHeight } = await imageCapture.getPhotoCapabilities();
-    const captureWidth = setInRange(960, imageWidth);
-    const captureHeight = setInRange(1280, imageHeight);
-    const photoSettings = width && height
-      ? {
-        imageWidth: captureWidth,
-        imageHeight: captureHeight,
-      }
-      : null;
-
-    console.log('photoSettings', photoSettings);
-    
-
     const barcodeDetector = new BarcodeDetector({ formats: ['pdf417', 'qr_code', 'aztec'] });
-    const vamos = async () => {
+
+    const launchIt = (delay) => setTimeout(async ()=>{
+        try {
+          await vamos();
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setTimeout(vamos, delay || minDelay);
+        }
+      }, minDelay);
+
+    async function vamos () {
       const initial = Date.now();
-
       const imageBlob = await imageCapture.grabFrame();
-
-      // const imagen = new Image();
-      // imagen.src = URL.createObjectURL(imageBlob);
-      // await new Promise(resolve => {
-      //   imagen.onload = resolve;
-      // });
-
       const barcodes = await barcodeDetector.detect(imageBlob);
-      //const barcodes = await barcodeDetector.detect(videoEl);
       console.log('barcodes.length', barcodes.length);
       updateStats(initial);
       updateDom();
       if (barcodes.length > 0) {
         success+=1;
+        playSound({ file: 'Selenium', volume: 0.5 })
         //alert(barcodes.map(barcode => barcode.rawValue));
       } else {
         fail+=1;
       }
       console.log('last', last);
-      setTimeout(vamos, minDelay);
+      launchIt();
     };
-    vamos();
+    launchIt(0);
   };
 
   main();
