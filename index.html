@@ -119,8 +119,8 @@
         },
         //focusMode: 'manual',
         //focusDistance: 0.5,
-        //width: { ideal: 960 },
-        //height: { ideal: 1280 } 
+        width: { ideal: 960 },
+        height: { ideal: 1280 } 
       },
       audio: false
     });
@@ -158,7 +158,7 @@
     const vamos = async () => {
       const initial = Date.now();
 
-      const imageBlob = await imageCapture.takePhoto(photoSettings);
+      const imageBlob = await imageCapture.grabFrame();
 
       const imagen = new Image();
       imagen.src = URL.createObjectURL(imageBlob);
