@@ -1,3 +1,13 @@
+const DEFAULT_VOLUME = 0.1;
+let audio;
+
+const playSound = ({ file, volume }) => {
+  audio?.pause();
+  audio = new Audio(`/sounds/${file}.ogg`);
+  audio.volume = volume || DEFAULT_VOLUME;
+  audio.play();
+};
+
 document.addEventListener('DOMContentLoaded', async function () {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
