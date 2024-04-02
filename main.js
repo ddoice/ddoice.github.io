@@ -8,6 +8,15 @@ const playSound = ({ file, volume }) => {
   audio.play();
 };
 
+const setInRange = (value, range) => {
+  if (!range) return NaN;
+  let x = Math.min(range.max, Math.max(range.min, value));
+  x = Math.round(x / range.step) * range.step;
+  return x;
+};
+
+
+let modes = ['grabFrame', 'videoCapture', 'takePhoto'];
 let mode='grabFrame';
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -28,6 +37,16 @@ document.addEventListener('DOMContentLoaded', async function () {
     const imageCapture = new ImageCapture(stream.getVideoTracks()[0]);
     const barcodeDetector = new BarcodeDetector({ formats: ['pdf417', 'qr_code', 'aztec'] });
 
+    const { imageWidth, imageHeight } = await imageCapture.getPhotoCapabilities();
+    const captureWidth = setInRange(960, imageWidth);
+    const captureHeight = setInRange(1280, imageHeight);
+    const photoSettings = width && height
+      ? {
+        imageWidth: captureWidth,
+        imageHeight: captureHeight,
+      }
+      : null;    
+
     let scanCount = 0;
     let average = 0;
     let last = 0;
@@ -36,7 +55,24 @@ document.addEventListener('DOMContentLoaded', async function () {
     const minDelay = 100;
 
     function toggleMode() {
-      mode = mode === 'grabFrame' ? 'videoCapture' : 'grabFrame';
+      mode = modes[(modes.indexOf(mode) + 1) % modes.length];
+      scanCount = 0;
+      average = 0;
+      last = 0;
+    }
+
+    async function getSource() {
+      if(mode === 'grabFrame') return imageCapture.grabFrame();
+      if(mode === 'videoCapture') return videoEl;
+      if(mode === 'takePhoto') {
+        const imageBlob = await imageCapture.takePhoto(photoSettings);
+        const imagen = new Image();
+        imagen.src = URL.createObjectURL(imageBlob);
+        await new Promise(resolve => {
+          imagen.onload = resolve;
+        });
+        return imagen;
+      }
     }
 
     // add eventlistener click .mode-toggle toggleMode
@@ -74,8 +110,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function vamos() {
       try {
         const initial = Date.now();
-        const imageBlob = await imageCapture.grabFrame();
-        const barcodes = await barcodeDetector.detect(imageBlob);
+        const source = await getSource();
+        const barcodes = await barcodeDetector.detect(source);
         updateStats(initial);
         updateDom();
         if (barcodes.length > 0) {
