@@ -82,7 +82,7 @@
   const DEFAULT_VOLUME = 0.1;
   let audio;
 
-  export const playSound = ({ file, volume }) => {
+  const playSound = ({ file, volume }) => {
     audio?.pause();
     audio = new Audio(`/sounds/${file}.ogg`);
     audio.volume = volume || DEFAULT_VOLUME;
@@ -157,7 +157,6 @@
       const initial = Date.now();
       const imageBlob = await imageCapture.grabFrame();
       const barcodes = await barcodeDetector.detect(imageBlob);
-      console.log('barcodes.length', barcodes.length);
       updateStats(initial);
       updateDom();
       if (barcodes.length > 0) {
@@ -167,7 +166,6 @@
       } else {
         fail+=1;
       }
-      console.log('last', last);
       launchIt();
     };
     launchIt(0);
