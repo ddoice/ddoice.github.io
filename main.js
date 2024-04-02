@@ -8,6 +8,8 @@ const playSound = ({ file, volume }) => {
   audio.play();
 };
 
+let mode='grabFrame';
+
 document.addEventListener('DOMContentLoaded', async function () {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -33,11 +35,20 @@ document.addEventListener('DOMContentLoaded', async function () {
     let success = 0;
     const minDelay = 100;
 
+    function toggleMode() {
+      mode = mode === 'grabFrame' ? 'videoCapture' : 'grabFrame';
+    }
+
+    // add eventlistener click .mode-toggle toggleMode
+    document.querySelector('.mode-toggle').addEventListener('click', toggleMode);
+
     function updateDom() {
       const timeNode = document.querySelector('.time span');
       const countNode = document.querySelector('.count span');
       const successNode = document.querySelector('.success span');
       const failNode = document.querySelector('.fail span');
+      const modeNode = document.querySelector('.mode span');
+      modeNode.innerHTML = mode;
       successNode.innerHTML = success;
       failNode.innerHTML = fail;
       timeNode.innerHTML = average.toFixed(2);
