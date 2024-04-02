@@ -160,13 +160,13 @@
 
       const imageBlob = await imageCapture.grabFrame();
 
-      const imagen = new Image();
-      imagen.src = URL.createObjectURL(imageBlob);
-      await new Promise(resolve => {
-        imagen.onload = resolve;
-      });
+      // const imagen = new Image();
+      // imagen.src = URL.createObjectURL(imageBlob);
+      // await new Promise(resolve => {
+      //   imagen.onload = resolve;
+      // });
 
-      const barcodes = await barcodeDetector.detect(imagen);
+      const barcodes = await barcodeDetector.detect(imageBlob);
       //const barcodes = await barcodeDetector.detect(videoEl);
       console.log('barcodes.length', barcodes.length);
       updateStats(initial);
